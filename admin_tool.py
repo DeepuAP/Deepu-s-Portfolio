@@ -9,7 +9,20 @@ from datetime import datetime
 import os
 
 # --- CONFIGURATION ---
-GEMINI_API_KEY = "AIzaSyB2wdkDNzMgC3eDgrqiDqP0OZvxnHf41Xc"
+# Helper to get secrets
+def get_secret(key):
+    if key in os.environ:
+        return os.environ[key]
+    if hasattr(st, "secrets") and key in st.secrets:
+        return st.secrets[key]
+    return None
+
+import os # Ensure os is imported if it wasn't already at top level, but it is at line 9.
+
+GEMINI_API_KEY = get_secret("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    st.error("⚠️ GENAI_API_KEY is missing! Please set it in .streamlit/secrets.toml or as an environment variable.")
+    st.stop()
 FIREBASE_CREDENTIALS_PATH = "firebase_credentials.json"
 FIREBASE_DB_URL = "https://loga-portfolio-default-rtdb.firebaseio.com"
 
