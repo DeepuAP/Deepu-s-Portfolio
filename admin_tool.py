@@ -1,6 +1,6 @@
 import streamlit as st
 from PIL import Image, ImageSequence
-import google.generativeai as genai
+# import google.generativeai as genai # Unused in admin tool
 import firebase_admin
 from firebase_admin import credentials, db
 import json
