@@ -27,9 +27,24 @@ FIREBASE_CREDENTIALS_PATH = "firebase_credentials.json"
 FIREBASE_DB_URL = "https://loga-portfolio-default-rtdb.firebaseio.com"
 
 # --- INIT FIREBASE ---
+# --- INIT FIREBASE ---
 if not firebase_admin._apps:
-    cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
-    firebase_admin.initialize_app(cred, {'databaseURL': FIREBASE_DB_URL})
+    # 1. Try loading from Streamlit Secrets (for Cloud)
+    if hasattr(st, "secrets") and "firebase" in st.secrets:
+        # st.secrets["firebase"] returns a mapping/dict
+        firebase_creds_dict = dict(st.secrets["firebase"])
+        cred = credentials.Certificate(firebase_creds_dict)
+        firebase_admin.initialize_app(cred, {'databaseURL': FIREBASE_DB_URL})
+    
+    # 2. Fallback to local file (for Local Dev)
+    elif os.path.exists(FIREBASE_CREDENTIALS_PATH):
+        cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
+        firebase_admin.initialize_app(cred, {'databaseURL': FIREBASE_DB_URL})
+        
+    # 3. Error if neither found
+    else:
+        st.error("❌ Firebase credentials not found! Please set secrets or add json file.")
+        st.stop()
 
 # --- PAGE CONFIG ---
 st.set_page_config(layout="wide", page_title="Portfolio Admin", page_icon="⚡")
